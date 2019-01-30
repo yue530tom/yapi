@@ -1,6 +1,6 @@
 {
   "name": "yapi-vendor",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "description": "YAPI",
   "main": "server/app.js",
   "scripts": {
@@ -12,7 +12,8 @@
     "start": " node server/app.js",
     "test": "ava",
     "build-client": "NODE_ENV=production ykit pack -m",
-    "npm-publish": "node ./npm-publish.js"
+    "npm-publish": "node ./npm-publish.js",
+    "docs": "ydoc build && cp docs/openapi-doc.html static/doc/openapi.html"
   },
   "scripts-info": {
     "start": "运行生产环境服务器",
@@ -111,7 +112,7 @@
     "extract-text-webpack-plugin": "2.0.0",
     "ghooks": "^2.0.0",
     "happypack": "^4.0.0-beta.5",
-    "json-schema-editor-visual": "^1.0.21",
+    "json-schema-editor-visual": "^1.0.22",
     "less": "^2.7.2",
     "less-loader": "^4.0.5",
     "markdown-it-include": "^1.0.0",
