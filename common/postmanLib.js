@@ -7,6 +7,8 @@ const HTTP_METHOD = constants.HTTP_METHOD;
 const axios = require('axios');
 const qs = require('qs');
 const CryptoJS = require('crypto-js');
+const jsrsasign = require('jsrsasign');
+const https = require('https');
 
 const isNode = typeof global == 'object' && global.global === global;
 const ContentTypeMap = {
@@ -17,6 +19,37 @@ const ContentTypeMap = {
   'text/html': 'html',
   other: 'text'
 };
+
+const getStorage = async (id)=>{
+  try{
+    if(isNode){
+      let storage = global.storageCreator(id);
+      let data = await storage.getItem();
+      return {
+        getItem: (name)=> data[name],
+        setItem: (name, value)=>{
+          data[name] = value;
+          storage.setItem(name, value)
+        }
+      }
+    }else{
+      return {
+        getItem: (name)=> window.localStorage.getItem(name),
+        setItem: (name, value)=>  window.localStorage.setItem(name, value)
+      }
+    }
+  }catch(e){
+    console.error(e)
+    return {
+      getItem: (name)=>{
+        console.error(name, e)
+      },
+      setItem: (name, value)=>{
+        console.error(name, value, e)
+      }
+    }
+  }
+}
 
 async function httpRequestByNode(options) {
   function handleRes(response) {
@@ -73,6 +106,9 @@ async function httpRequestByNode(options) {
       headers: options.headers,
       timeout: 5000,
       maxRedirects: 0,
+      httpsAgent: new https.Agent({
+        rejectUnauthorized: false
+      }),
       data: options.data
     });
     return handleRes(response);
@@ -202,12 +238,21 @@ function sandboxByBrowser(context = {}, script) {
   return context;
 }
 
-async function crossRequest(defaultOptions, preScript, afterScript) {
+/**
+ * 
+ * @param {*} defaultOptions 
+ * @param {*} preScript 
+ * @param {*} afterScript 
+ * @param {*} commonContext  负责传递一些业务信息，crossRequest 不关注具体传什么，只负责当中间人
+ */
+async function crossRequest(defaultOptions, preScript, afterScript, commonContext = {}) {
   let options = Object.assign({}, defaultOptions);
+  const taskId = options.taskId || Math.random() + '';
   let urlObj = URL.parse(options.url, true),
     query = {};
   query = Object.assign(query, urlObj.query);
   let context = {
+    isNode,
     get href() {
       return urlObj.href;
     },
@@ -234,12 +279,16 @@ async function crossRequest(defaultOptions, preScript, afterScript) {
     query: query,
     requestHeader: options.headers || {},
     requestBody: options.data,
-    promise: false
+    promise: false,
+    storage: await getStorage(taskId)
   };
+
+  Object.assign(context, commonContext)
 
   context.utils = Object.freeze({
     _: _,
     CryptoJS: CryptoJS,
+    jsrsasign: jsrsasign,
     base64: utils.base64,
     md5: utils.md5,
     sha1: utils.sha1,
@@ -276,7 +325,7 @@ async function crossRequest(defaultOptions, preScript, afterScript) {
           res = json_parse(data.res.body);
           data.res.body = res;
         }
-        if (!isNode) message = '请求异常，请检查 chrome network 错误信息...（如果不懂 chrome network，请百度查询 "chrome network教程"）';
+        if (!isNode) message = '请求异常，请检查 chrome network 错误信息... https://juejin.im/post/5c888a3e5188257dee0322af 通过该链接查看教程"）';
         if (isNaN(data.res.status)) {
           reject({
             body: res || message,
@@ -286,7 +335,7 @@ async function crossRequest(defaultOptions, preScript, afterScript) {
         }
         resolve(data);
       };
-      
+
       window.crossRequest(options);
     });
   }
@@ -389,7 +438,7 @@ function handleParams(interfaceData, handleValue, requestParams) {
       }
     }
   } catch (e) {
-    console.log('err', e);
+    console.error('err', e);
   }
 
   if (HTTP_METHOD[interfaceRunData.method].request_body) {

@@ -35,6 +35,8 @@ const {
   checkNameIsExistInArray
 } = require('common/postmanLib.js');
 
+const createContext = require('common/createContext')
+
 const HTTP_METHOD = constants.HTTP_METHOD;
 const InputGroup = Input.Group;
 const Option = Select.Option;
@@ -104,12 +106,14 @@ ParamsNameComponent.propTypes = {
   desc: PropTypes.string,
   name: PropTypes.string
 };
-
 export default class Run extends Component {
   static propTypes = {
     data: PropTypes.object, //接口原有数据
     save: PropTypes.func, //保存回调方法
-    type: PropTypes.string //enum[case, inter], 判断是在接口页面使用还是在测试集
+    type: PropTypes.string, //enum[case, inter], 判断是在接口页面使用还是在测试集
+    curUid: PropTypes.number.isRequired,
+    interfaceId: PropTypes.number.isRequired,
+    projectId: PropTypes.number.isRequired
   };
 
   constructor(props) {
@@ -300,7 +304,12 @@ export default class Run extends Component {
       result;
 
     try {
-      result = await crossRequest(options, this.state.pre_script, this.state.after_script);
+      options.taskId = this.props.curUid;
+      result = await crossRequest(options, this.state.pre_script, this.state.after_script, createContext(
+        this.props.curUid,
+        this.props.projectId,
+        this.props.interfaceId
+      ));
       result = {
         header: result.res.header,
         body: result.res.body,
@@ -815,13 +824,14 @@ export default class Run extends Component {
                         )}
                         <span className="eq-symbol">=</span>
                         {item.type === 'file' ? (
-                          <Input
-                            type="file"
-                            id={'file_' + index}
-                            onChange={e => this.changeBody(e.target.value, index, 'value')}
-                            multiple
-                            className="value"
-                          />
+                          '因Chrome最新版安全策略限制，不再支持文件上传'
+                          // <Input
+                          //   type="file"
+                          //   id={'file_' + index}
+                          //   onChange={e => this.changeBody(e.target.value, index, 'value')}
+                          //   multiple
+                          //   className="value"
+                          // />
                         ) : (
                           <Input
                             value={item.value}
@@ -875,6 +885,9 @@ export default class Run extends Component {
               >
                 {this.state.resStatusCode + '  ' + this.state.resStatusText}
               </h2>
+              <div>
+                <a rel="noopener noreferrer"  target="_blank" href="https://juejin.im/post/5c888a3e5188257dee0322af">YApi 新版如何查看 http 请求数据</a>
+              </div>
               {this.state.test_valid_msg && (
                 <Alert
                   message={

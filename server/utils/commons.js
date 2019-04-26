@@ -521,10 +521,10 @@ function convertString(variable) {
   }
 }
 
+
 exports.runCaseScript = async function runCaseScript(params, colId, interfaceId) {
   const colInst = yapi.getInst(interfaceColModel);
   let colData = await colInst.get(colId);
-
   const logs = [];
   const context = {
     assert: require('assert'),
@@ -589,7 +589,7 @@ ${JSON.stringify(schema,null,2)}`)
   } catch (err) {
     logs.push(convertString(err));
     result.logs = logs;
-
+    logs.push(err.name + ': ' + err.message)
     return yapi.commons.resReturn(result, 400, err.name + ': ' + err.message);
   }
 };

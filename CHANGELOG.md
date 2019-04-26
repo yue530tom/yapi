@@ -1,3 +1,58 @@
+### v1.7.0
+* fix：修复md两个undefined以及run_auto_test中执行用例id问题 #1024
+
+### v1.7.0-beta.1
+* 修复storage保存逻辑错误
+
+### v1.7.0-beta.0
+* **[插件]** 新增默认插件，支持通过 token 导出包含 basepath 的 json 格式接口，并整合添加 sm2tsservice 入口
+* **[插件]** 新增默认插件，支持swagger数据同步
+* 修复不兼容 node7.6 bug
+
+### v1.5.14 
+* 修复接口运行部分请求参数默认使用示例填写值导致无法删除参数bug
+* 修复无法保存 global bug
+
+### v1.5.13 （存在bug）
+* 支持 pre-script 脚本持久化数据存储，storage 兼容浏览器和服务端，并且是持久化数据存储，不会丢失，用法类似于 localStorage
+* 修复了swagger 数据导入bug
+* 修复接口运行部分请求参数默认使用示例填写值导致无法删除参数bug
+
+### v1.5.12  （存在bug）
+* 废弃 v1.6.x 新增功能，因为有不可控的bug出现
+* 支持项目设置 hook
+* 开放api 新增 '/api/plugin/export'
+* 接口运行部分请求参数默认使用示例填写值
+
+### v1.5.10
+* 解决 license should be a valid SPDX license expression 报错
+* 修改OpenAPI比较版本方法
+* fix复制路径不包含基本路径
+* 修复了第一次部署，首页一直处于 loading bug
+
+### v1.5.7
+* 数据导入默认使用完全覆盖
+* 升级新版本 cross-request 扩展，因 chrome 安全策略限制，不再支持文件上传
+* fix 重复的 moment 依赖，导致安装时报错
+* feat: add jsrsasign Lib
+
+### v1.5.6
+* 修复 /api/open/import_data 参数bug
+* 修复  /api/open/import_data 文档错误，merge 参数误写为 dataSync
+
+### v1.5.5
+* cross-request 升级到 2.10
+* /api/open/import_data 新增 url 参数，支持服务端 url 导入
+
+### v1.5.2
+* 新增 openapi `/api/project/get`，可获取项目基本信息
+
+### v1.5.1
+
+* 优化 restful api 动态路由权重匹配算法，匹配更加精确
+* openapi 新增 `/api/interface/list_cat`，获取某个分类下所有接口
+* 新增了 rap数据导入到 yapi 插件 [rap2yapi](https://github.com/wxxcarl/yapi-plugin-import-rap)
+
 ### v1.5.0
 
 * 优化开放 api功能，现在 token 带有用户信息了
